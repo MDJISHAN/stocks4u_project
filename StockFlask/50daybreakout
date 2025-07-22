@@ -1,0 +1,83 @@
+from kiteconnect import KiteConnect
+import pandas as pd
+from datetime import datetime, timedelta
+import time
+from auth import get_kite_client
+from select_filter import get_fo_stocks
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+kite = get_kite_client()
+
+# Only F&O symbols
+symbols = get_fo_stocks()
+
+# Fetch NSE instruments once and build a token map
+print("Fetching instruments...")
+nse_instruments = kite.instruments("NSE")
+symbol_token_map = {
+    inst['tradingsymbol']: inst['instrument_token']
+    for inst in nse_instruments
+    if inst['tradingsymbol'] in symbols
+}
+
+# Ensure valid symbols only
+valid_symbols = [s for s in symbols if s in symbol_token_map]
+
+# Date range for 50-day breakout
+to_date = datetime.now()
+from_date = to_date - timedelta(days=70)
+
+# Store breakout results
+breakouts = []
+
+# Function to check breakout for one stock
+def check_breakout(symbol):
+    try:
+        token = symbol_token_map[symbol]
+        data = kite.historical_data(token, from_date, to_date, interval="day")
+        df = pd.DataFrame(data)
+
+        if df.empty or len(df) < 50:
+            return None
+
+        df['date'] = pd.to_datetime(df['date'])
+        df.set_index('date', inplace=True)
+
+        high_50 = df['high'][-50:].max()
+        latest_close = df['close'][-1]
+
+        if latest_close > high_50:
+            breakout_strength = (latest_close - high_50) / high_50 * 100
+            return {
+                'Symbol': symbol,
+                'Latest Close': round(latest_close, 2),
+                '50-Day High': round(high_50, 2),
+                'Breakout Strength (%)': round(breakout_strength, 2)
+            }
+    except Exception as e:
+        print(f"[Error] {symbol}: {e}")
+    return None
+
+# Throttled execution to avoid API rate limit
+def throttled_executor(symbols, batch_size=3, delay=1.1):
+    results = []
+    for i in range(0, len(symbols), batch_size):
+        batch = symbols[i:i+batch_size]
+        with ThreadPoolExecutor(max_workers=batch_size) as executor:
+            futures = [executor.submit(check_breakout, symbol) for symbol in batch]
+            for future in as_completed(futures):
+                result = future.result()
+                if result:
+                    results.append(result)
+        time.sleep(delay)  # delay between batches
+    return results
+
+print("Scanning for 50-day breakouts with throttling...")
+breakouts = throttled_executor(valid_symbols, batch_size=3, delay=1.1)
+
+# Sort and display results
+breakout_df = pd.DataFrame(breakouts)
+breakout_df = breakout_df.sort_values(by="Breakout Strength (%)", ascending=False).reset_index(drop=True)
+
+print("\nTop 50-Day Breakouts (F&O Stocks):")
+print(breakout_df)

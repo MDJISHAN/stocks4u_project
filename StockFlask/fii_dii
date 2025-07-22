@@ -1,0 +1,17 @@
+import requests
+
+url = "https://webapi.niftytrader.in/webapi/Resource/fii-dii-activity-data?request_type=monthly&year_month=2025-05"
+headers = {
+    "User-Agent": "Mozilla/5.0",
+    "Accept": "application/json"
+}
+
+response = requests.get(url, headers=headers)
+
+if response.status_code == 200:
+    data = response.json()
+    print("Fetched data as dictionary:\n")
+    print(data)
+else:
+    print(f"Failed to fetch data. Status code: {response.status_code}")
+    print("Response:", response.text)
