@@ -40,6 +40,9 @@ logging.basicConfig(
     format='%(asctime)s %(levelname)s %(message)s',
     handlers=[logging.FileHandler('app_error.log'), logging.StreamHandler()]
 )
+@app.route('/')
+def home():
+    return "Backend is Live"
 
 @app.route('/api/pcr', methods=['GET'])
 def get_pcr():
