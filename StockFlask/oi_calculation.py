@@ -4,7 +4,7 @@ import os
 import time
 import pytz
 from auth import get_kite_client
-
+from datetime import datetime
 # Initialize Kite client
 kite = get_kite_client()
 
@@ -13,7 +13,7 @@ indices = ["NIFTY", "BANKNIFTY", "SENSEX", "FINNIFTY"]
 OI_FILE = "oi_data.csv"
 
 # 🕒 Ask user for desired output timestamp (IST)
-user_input = input("Enter output time in IST as 'YYYY-MM-DD HH:MM', or press Enter to use current time: ")
+user_input = datetime.now().strftime("%Y-%m-%d %H:%M"
 if user_input:
     try:
         # Parse user-specified IST timestamp
