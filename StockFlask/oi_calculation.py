@@ -13,7 +13,7 @@ indices = ["NIFTY", "BANKNIFTY", "SENSEX", "FINNIFTY"]
 OI_FILE = "oi_data.csv"
 
 # 🕒 Ask user for desired output timestamp (IST)
-user_input = datetime.now().strftime("%Y-%m-%d %H:%M"
+user_input = datetime.now().strftime("%Y-%m-%d %H:%M")
 if user_input:
     try:
         # Parse user-specified IST timestamp
