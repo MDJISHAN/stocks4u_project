@@ -40,6 +40,11 @@ logging.basicConfig(
     format='%(asctime)s %(levelname)s %(message)s',
     handlers=[logging.FileHandler('app_error.log'), logging.StreamHandler()]
 )
+#DUMY ROUTES TO CHECK
+@app.route('/top-and-tip-growth', methods=['GET'])
+def top_and_low_growth():
+    return jsonify({"status": "success", "message": "API working"})
+    
 @app.route('/')
 def home():
     return "Backend is Live"
