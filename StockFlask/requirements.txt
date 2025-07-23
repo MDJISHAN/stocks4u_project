@@ -68,7 +68,7 @@ pillow
 pipenv
 platformdirs
 protobuf
-psycopg2
+#psycopg2
 pyasn1
 pyasn1_modules
 pycparser
