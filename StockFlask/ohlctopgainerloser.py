@@ -11,7 +11,7 @@ with open("login_credentials.json", "r") as file:
 
 api_key = credentials["api_key"]
 #access_token = credentials["access_token"]
-access_token= "2f65FGXhvJ2W3RwDCORPKSH2p50w8cPc"
+access_token= "lzPpBp2quxuT4MCH0fhl3h9fhgEauZJ9"
 
 kite = KiteConnect(api_key=api_key)
 kite.set_access_token(access_token)
