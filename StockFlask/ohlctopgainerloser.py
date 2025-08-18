@@ -4,9 +4,8 @@ import pandas as pd
 import datetime
 from kiteconnect import KiteConnect
 from select_filter import get_fo_stocks  # ✅ Only F&O stocks needed
-from kite_token_manager import get_kite_token
 
-ACCESS_TOKEN = get_kite_token()
+
 
 # Load credentials
 with open("login_credentials.json", "r") as file:
@@ -14,7 +13,7 @@ with open("login_credentials.json", "r") as file:
 
 api_key = credentials["api_key"]
 #access_token = credentials["access_token"]
-access_token= ACCESS_TOKEN
+access_token= "ELXGGeVdSe4CY2zDQEjStm39Kl45n1hX"
 
 kite = KiteConnect(api_key=api_key)
 kite.set_access_token(access_token)
