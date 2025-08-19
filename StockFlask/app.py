@@ -346,9 +346,9 @@ def sector_abnormal_growth():
     result = get_sector_abnormal_growth(kite, sector_name)
     return jsonify(result), 200
      # ✅ Clear memory explicitly
-        del result, fo_stocks_result, non_fo_stocks_result, fo_stock_symbols
-        gc.collect()
-        del data
+    del result, fo_stocks_result, non_fo_stocks_result, fo_stock_symbols
+    gc.collect()
+    del data
 
 
 # 1. Analyze custom stocks (via POST request)
