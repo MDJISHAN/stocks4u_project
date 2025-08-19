@@ -31,8 +31,6 @@ from waitress import serve
 from flask import Flask, jsonify, request
 import logging
 import time
-from select_filter import get_fo_stocks
-from turnover_analysis import analyze_high_turnover_stocks_live  # adjust import if needed
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 app = Flask(__name__)
