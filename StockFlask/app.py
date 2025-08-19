@@ -28,6 +28,11 @@ from analysestockgrowth import analyze_stock_growth, change_from_previous_close_
 from sip_calculator import sip_calculator
 from swp_calculator import swp_calculator
 from waitress import serve
+from flask import Flask, jsonify, request
+import logging
+import time
+from select_filter import get_fo_stocks
+from turnover_analysis import analyze_high_turnover_stocks_live  # adjust import if needed
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 app = Flask(__name__)
@@ -104,18 +109,30 @@ def analyze_route():
 
     # Always return as JSON with a clear key
     return jsonify({"output": output})
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
+def safe_call(func, *args, retries=3, delay=2, **kwargs):
+    """
+    Retry wrapper for functions that call external APIs (like Kite).
+    """
+    for attempt in range(retries):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            logger.error(f"❌ Error in {func.__name__} (attempt {attempt+1}/{retries}): {e}")
+            time.sleep(delay)
+    raise RuntimeError(f"{func.__name__} failed after {retries} retries")
 @app.route('/high-turnover-stocks', methods=['GET'])
 def high_turnover_stocks():
     try:
         # Get the optional top_n parameter from query string, default to 100
         top_n = int(request.args.get('top', 100))
 
-        # Get the list of F&O stock symbols (strings)
-        fo_stock_symbols = get_fo_stocks()  # Returns something like ['TCS', 'INFY', 'RELIANCE']
-
-        # Get the turnover analysis result
-        result = analyze_high_turnover_stocks_live(top_n)
+        # Safe calls with retries
+        fo_stock_symbols = safe_call(get_fo_stocks)  
+        result = safe_call(analyze_high_turnover_stocks_live, top_n)
 
         # Filter stocks into FO and non-FO based on symbol membership
         fo_stocks_result = [stock for stock in result if stock['symbol'] in fo_stock_symbols]
@@ -127,8 +144,11 @@ def high_turnover_stocks():
         }), 200
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
+        logger.exception("❌ Fatal error in /high-turnover-stocks route")
+        return jsonify({
+            "error": "Failed to fetch high turnover stocks",
+            "details": str(e)
+        }), 502
 from flask import jsonify
 
 @app.route('/channel-breakout', methods=['GET'])
