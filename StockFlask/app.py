@@ -83,7 +83,12 @@ def get_oi_data():
             "success": True,
             "message": "OI data fetched successfully",
             "data": result
-        })
+        }), 200
+         # ✅ Clear memory explicitly
+        del result, fo_stocks_result, non_fo_stocks_result, fo_stock_symbols
+        gc.collect()
+        del data
+        
     except Exception as e:
         return jsonify({
             "success": False,
@@ -340,6 +345,11 @@ def sector_abnormal_growth():
 
     result = get_sector_abnormal_growth(kite, sector_name)
     return jsonify(result), 200
+     # ✅ Clear memory explicitly
+        del result, fo_stocks_result, non_fo_stocks_result, fo_stock_symbols
+        gc.collect()
+            del data
+
 
 # 1. Analyze custom stocks (via POST request)
 @app.route('/stockanalyze', methods=['POST'])
@@ -511,6 +521,11 @@ def get_top_and_low_growth():
         # Convert DataFrame to JSON
         results = df.sort_values("z_score", ascending=False).head(10).to_dict(orient="records")
         return jsonify(results), 200
+         # ✅ Clear memory explicitly
+        del result, fo_stocks_result, non_fo_stocks_result, fo_stock_symbols
+        gc.collect()
+        del data
+
 
     except Exception as e:
         logger.error(f" Error in /top-and-low-growth route: {e}")
