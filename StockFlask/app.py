@@ -34,7 +34,8 @@ import time
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+# Allow frontend domain
+CORS(app, resources={r"/*": {"origins": ["https://stocks4u.in"]}})
 kite = get_kite_client()
 
 # Setup logging
