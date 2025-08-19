@@ -142,6 +142,11 @@ def high_turnover_stocks():
             "non_fo_stocks": non_fo_stocks_result
         }), 200
 
+       # ✅ Clear memory explicitly
+        del result, fo_stocks_result, non_fo_stocks_result, fo_stock_symbols
+        gc.collect()
+        del data
+
     except Exception as e:
         logger.exception("❌ Fatal error in /high-turnover-stocks route")
         return jsonify({
