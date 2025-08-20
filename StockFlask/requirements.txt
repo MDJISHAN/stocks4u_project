@@ -119,3 +119,7 @@ wrapt
 xhtml2pdf
 zipp
 zope.interface
+flask_cors
+flask
+kiteconnect
+
